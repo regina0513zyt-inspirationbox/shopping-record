@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>购物记录小账本</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #fff7ed 0%, #fff1f2 45%, #fffbeb 100%);
+      color: #334155;
+    }
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 340px 1fr;
+    }
+    .card {
+      background: rgba(255,255,255,0.92);
+      border-radius: 28px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .panel {
+      padding: 20px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: #1f2937;
+    }
+    .subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .form-group { margin-top: 14px; }
+    .label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #475569;
+      font-weight: 600;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #fff;
+      color: #334155;
+      outline: none;
+      transition: .18s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #fb923c;
+      box-shadow: 0 0 0 4px rgba(251,146,60,.12);
+    }
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+    .readonly {
+      background: #fff7ed;
+    }
+    .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .upload-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      color: #64748b;
+      cursor: pointer;
+      background: #fff;
+    }
+    .upload-box:hover { background: #f8fafc; }
+    .preview {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-top: 10px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    button {
+      border: none;
+      border-radius: 18px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      color: white;
+      font-weight: 700;
+    }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-secondary {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+    }
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .summary strong { color: #111827; }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .chip.active {
+      background: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+    .alert-card {
+      background: #fff1f2;
+    }
+    .alert-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: white;
+      border-radius: 16px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 16px;
+    }
+    .product-card {
+      overflow: hidden;
+      padding: 14px;
+    }
+    .product-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 18px;
+      background: #ffedd5;
+      display: block;
+    }
+    .product-placeholder {
+      width: 100%;
+      height: 180px;
+      border-radius: 18px;
+      background: #ffedd5;
+      display: grid;
+      place-items: center;
+      color: #9a3412;
+      font-size: 14px;
+    }
+    .product-top {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+    .product-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .product-meta {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .mini-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .mini-btn {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #475569;
+    }
+    .info-box {
+      margin-top: 12px;
+      background: #fff7ed;
+      border-radius: 18px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .status {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-ok { background: #dcfce7; color: #15803d; }
+    .status-alert { background: #ffe4e6; color: #be123c; }
+    .note {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .products { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card panel">
+      <h1 class="title" id="formTitle">🧾 添加记录</h1>
+      <p class="subtitle">记录购买、使用时长、日均成本和到期提醒。</p>
+
+      <div class="form-group">
+        <label class="label">商品名称</label>
+        <input id="name" placeholder="比如：面霜 / 连衣裙 / 耳机" />
+      </div>
+
+      <div class="form-group">
+        <label class="label">商品分类</label>
+        <select id="category"></select>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="label">价格</label>
+          <input id="price" type="number" min="0" step="0.01" placeholder="比如：199" />
+        </div>
+        <div class="form-group">
+          <label class="label">购买平台</label>
+          <select id="platform"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">购买日期</label>
+        <input id="purchaseDate" type="date" />
+        <div class="hint">输入购买日期后，会自动计算已经使用了多少天。</div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">使用天数</label>
+        <input id="useDays" class="readonly" readonly placeholder="自动计算" />
+      </div>
+
+      <div class="form-group">
+        <label class="label">提醒类型</label>
+        <select id="reminderType">
+          <option value="none">无提醒</option>
+          <option value="expiry">保质期</option>
+          <option value="warranty">质保期</option>
+        </select>
+      </div>
+
+      <div id="expiryWrap" class="form-group" style="display:none;">
+        <label class="label">到期日期</label>
+        <input id="expiryDate" type="date" />
+      </div>
+
+      <div id="warrantyWrap" style="display:none;">
+        <div class="form-group">
+          <label class="label">质保月数</label>
+          <input id="warrantyMonths" type="number" min="0" placeholder="比如：12" />
+        </div>
+        <div class="form-group">
+          <label class="label">质保截止日期</label>
+          <input id="warrantyEndDate" class="readonly" readonly placeholder="自动计算" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">备注</label>
+        <textarea id="note" placeholder="比如：适合囤货、回购款、送人的……"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="label">商品图片</label>
+        <label class="upload-box">
+          点击上传图片
+          <input id="imageFile" type="file" accept="image/*" hidden />
+        </label>
+        <img id="imagePreview" class="preview" style="display:none;" alt="预览" />
+      </div>
+
+      <div class="form-group">
+        <div class="info-box">日均成本：<strong id="dailyCost">—</strong></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="submitBtn">添加</button>
+        <button class="btn-secondary" id="resetBtn" type="button">重置</button>
+      </div>
+    </div>
+
+    <div class="right-col">
+      <div id="alertCard" class="card panel alert-card" style="display:none;"></div>
+
+      <div class="card panel">
+        <div class="summary">
+          <div>
+            <div class="title" style="font-size:20px;margin-bottom:4px;">今天也在认真过生活 ✨</div>
+            <div class="subtitle" id="summaryText">共 0 件，累计 ¥0.00，提醒 0 条</div>
+          </div>
+          <div class="chips" id="filterChips"></div>
+        </div>
+      </div>
+
+      <div id="products" class="products"></div>
+      <div id="emptyState" class="card empty">这里还没有记录，先添加你的第一件好物吧。</div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'shopping_record_html_v1';
+    const CATEGORY_OPTIONS = ['食品', '电子产品', '美妆', '日用品', '服装', '其他'];
+    const PLATFORM_OPTIONS = ['淘宝', '京东', '拼多多', '抖音', '线下', '其他'];
+
+    const state = {
+      items: [],
+      editingId: null,
+      categoryFilter: '全部',
+      image: ''
+    };
+
+    const els = {
+      name: document.getElementById('name'),
+      category: document.getElementById('category'),
+      price: document.getElementById('price'),
+      platform: document.getElementById('platform'),
+      purchaseDate: document.getElementById('purchaseDate'),
+      useDays: document.getElementById('useDays'),
+      reminderType: document.getElementById('reminderType'),
+      expiryWrap: document.getElementById('expiryWrap'),
+      warrantyWrap: document.getElementById('warrantyWrap'),
+      expiryDate: document.getElementById('expiryDate'),
+      warrantyMonths: document.getElementById('warrantyMonths'),
+      warrantyEndDate: document.getElementById('warrantyEndDate'),
+      note: document.getElementById('note'),
+      imageFile: document.getElementById('imageFile'),
+      imagePreview: document.getElementById('imagePreview'),
+      dailyCost: document.getElementById('dailyCost'),
+      submitBtn: document.getElementById('submitBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      formTitle: document.getElementById('formTitle'),
+      filterChips: document.getElementById('filterChips'),
+      summaryText: document.getElementById('summaryText'),
+      products: document.getElementById('products'),
+      emptyState: document.getElementById('emptyState'),
+      alertCard: document.getElementById('alertCard')
+    };
+
+    function getTodayStr() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const date = new Date(dateStr + 'T00:00:00');
+      if (Number.isNaN(date.getTime())) return '—';
+      return date.toLocaleDateString('zh-CN');
+    }
+
+    function daysBetween(from, to) {
+      if (!from || !to) return 0;
+      const start = new Date(from + 'T00:00:00');
+      const end = new Date(to + 'T00:00:00');
+      const ms = 24 * 60 * 60 * 1000;
+      return Math.floor((end.getTime() - start.getTime()) / ms);
+    }
+
+    function addMonths(dateStr, months) {
+      if (!dateStr || !months) return '';
+      const date = new Date(dateStr + 'T00:00:00');
+      date.setMonth(date.getMonth() + Number(months));
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function calculateUseDays(purchaseDate) {
+      if (!purchaseDate) return '';
+      const diff = daysBetween(purchaseDate, getTodayStr());
+      return diff < 0 ? 0 : diff + 1;
+    }
+
+    function calculateDailyCost(price, days) {
+      const p = Number(price);
+      const d = Number(days);
+      if (!p || !d || d <= 0) return '—';
+      return `¥${(p / d).toFixed(2)}/天`;
+    }
+
+    function getReminderStatus(item) {
+      const today = getTodayStr();
+      if (item.reminderType === 'expiry' && item.expiryDate) {
+        const diff = daysBetween(today, item.expiryDate);
+        if (diff < 0) return { level: 'alert', text: '已过期' };
+        if (diff === 0) return { level: 'alert', text: '今天到期' };
+        if (diff <= 7) return { level: 'alert', text: `${diff}天内到期` };
+        return { level: 'ok', text: '保质期内' };
+      }
+      if (item.reminderType === 'warranty' && item.warrantyEndDate) {
+        const diff = daysBetween(today, item.warrantyEndDate);
+        if (diff < 0) return { level: 'alert', text: '已过保' };
+        if (diff === 0) return { level: 'alert', text: '今天过保' };
+        if (diff <= 7) return { level: 'alert', text: `${diff}天内过保` };
+        return { level: 'ok', text: '质保中' };
+      }
+      return { level: 'none', text: '无提醒' };
+    }
+
+    function getFormData() {
+      return {
+        name: els.name.value.trim(),
+        category: els.category.value,
+        price: els.price.value,
+        platform: els.platform.value,
+        purchaseDate: els.purchaseDate.value,
+        useDays: calculateUseDays(els.purchaseDate.value),
+        reminderType: els.reminderType.value,
+        expiryDate: els.expiryDate.value,
+        warrantyMonths: els.warrantyMonths.value,
+        warrantyEndDate: els.purchaseDate.value && els.warrantyMonths.value ? addMonths(els.purchaseDate.value, els.warrantyMonths.value) : '',
+        note: els.note.value.trim(),
+        image: state.image || ''
+      };
+    }
+
+    function syncDerivedFields() {
+      const useDays = calculateUseDays(els.purchaseDate.value);
+      els.useDays.value = useDays;
+      els.warrantyEndDate.value = els.purchaseDate.value && els.warrantyMonths.value
+        ? addMonths(els.purchaseDate.value, els.warrantyMonths.value)
+        : '';
+      els.dailyCost.textContent = calculateDailyCost(els.price.value, useDays);
+    }
+
+    function updateReminderUI() {
+      const type = els.reminderType.value;
+      els.expiryWrap.style.display = type === 'expiry' ? 'block' : 'none';
+      els.warrantyWrap.style.display = type === 'warranty' ? 'block' : 'none';
+      if (type !== 'expiry') els.expiryDate.value = '';
+      if (type !== 'warranty') {
+        els.warrantyMonths.value = '';
+        els.warrantyEndDate.value = '';
+      }
+    }
+
+    function saveItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    }
+
+    function loadItems() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        if (Array.isArray(saved)) state.items = saved;
+      } catch (e) {
+        state.items = [];
+      }
+    }
+
+    function resetForm() {
+      state.editingId = null;
+      state.image = '';
+      els.formTitle.textContent = '🧾 添加记录';
+      els.submitBtn.textContent = '添加';
+      els.name.value = '';
+      els.category.value = '食品';
+      els.price.value = '';
+      els.platform.value = '淘宝';
+      els.purchaseDate.value = '';
+      els.useDays.value = '';
+      els.reminderType.value = 'none';
+      els.expiryDate.value = '';
+      els.warrantyMonths.value = '';
+      els.warrantyEndDate.value = '';
+      els.note.value = '';
+      els.imageFile.value = '';
+      els.imagePreview.style.display = 'none';
+      els.imagePreview.src = '';
+      els.dailyCost.textContent = '—';
+      updateReminderUI();
+    }
+
+    function editItem(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+      state.editingId = id;
+      state.image = item.image || '';
+      els.formTitle.textContent = '🧾 编辑记录';
+      els.submitBtn.textContent = '保存';
+      els.name.value = item.name || '';
+      els.category.value = item.category || '食品';
+      els.price.value = item.price || '';
+      els.platform.value = item.platform || '淘宝';
+      els.purchaseDate.value = item.purchaseDate || '';
+      els.useDays.value = calculateUseDays(item.purchaseDate || '');
+      els.reminderType.value = item.reminderType || 'none';
+      updateReminderUI();
+      els.expiryDate.value = item.expiryDate || '';
+      els.warrantyMonths.value = item.warrantyMonths || '';
+      els.warrantyEndDate.value = item.warrantyEndDate || '';
+      els.note.value = item.note || '';
+      if (item.image) {
+        els.imagePreview.src = item.image;
+        els.imagePreview.style.display = 'block';
+      } else {
+        els.imagePreview.style.display = 'none';
+      }
+      syncDerivedFields();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteItem(id) {
+      state.items = state.items.filter(item => item.id !== id);
+      if (state.editingId === id) resetForm();
+      saveItems();
+      render();
+    }
+
+    function submitItem() {
+      const item = getFormData();
+      if (!item.name) return;
+
+      if (item.reminderType === 'expiry') {
+        item.warrantyMonths = '';
+        item.warrantyEndDate = '';
+      }
+      if (item.reminderType === 'warranty') {
+        item.expiryDate = '';
+      }
+      if (item.reminderType === 'none') {
+        item.expiryDate = '';
+        item.warrantyMonths = '';
+        item.warrantyEndDate = '';
+      }
+
+      item.id = state.editingId || Date.now();
+
+      if (state.editingId) {
+        state.items = state.items.map(old => old.id === state.editingId ? item : old);
+      } else {
+        state.items.unshift(item);
+      }
+
+      saveItems();
+      resetForm();
+      render();
+    }
+
+    function renderFilters() {
+      const all = ['全部', ...CATEGORY_OPTIONS];
+      els.filterChips.innerHTML = all.map(name => `
+        <button class="chip ${state.categoryFilter === name ? 'active' : ''}" data-filter="${name}">${name}</button>
+      `).join('');
+
+      els.filterChips.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.categoryFilter = btn.dataset.filter;
+          render();
+        });
+      });
+    }
+
+    function renderAlerts() {
+      const alertItems = state.items.filter(item => getReminderStatus(item).level === 'alert');
+      if (!alertItems.length) {
+        els.alertCard.style.display = 'none';
+        return;
+      }
+      els.alertCard.style.display = 'block';
+      els.alertCard.innerHTML = `
+        <div class="title" style="font-size:20px;margin-bottom:6px;">🔔 到期提醒</div>
+        <div class="subtitle">以下商品将在 7 天内到期/过保，或已经过期/过保。</div>
+        ${alertItems.slice(0,5).map(item => {
+          const status = getReminderStatus(item);
+          return `<div class="alert-item"><span>${item.name}</span><strong style="color:#be123c;">${status.text}</strong></div>`;
+        }).join('')}
+      `;
+    }
+
+    function renderSummary() {
+      const total = state.items.reduce((sum, item) => sum + (Number(item.price) || 0), 0).toFixed(2);
+      const alerts = state.items.filter(item => getReminderStatus(item).level === 'alert').length;
+      els.summaryText.textContent = `共 ${state.items.length} 件，累计 ¥${total}，提醒 ${alerts} 条`;
+    }
+
+    function renderProducts() {
+      const items = state.items.filter(item => state.categoryFilter === '全部' || item.category === state.categoryFilter);
+      els.products.innerHTML = '';
+      els.emptyState.style.display = items.length ? 'none' : 'block';
+      if (!items.length) return;
+
+      els.products.innerHTML = items.map(item => {
+        const status = getReminderStatus(item);
+        return `
+          <div class="card product-card">
+            ${item.image ? `<img class="product-image" src="${item.image}" alt="${item.name}">` : `<div class="product-placeholder">暂无图片</div>`}
+            <div class="product-top">
+              <div>
+                <div class="product-name">${item.name}</div>
+                <div class="product-meta">${item.category} · ${item.platform}</div>
+              </div>
+              <div class="mini-actions">
+                <button class="mini-btn" data-edit="${item.id}">编辑</button>
+                <button class="mini-btn" data-delete="${item.id}">删除</button>
+              </div>
+            </div>
+            <div class="info-box">
+              <div>价格：${item.price ? `¥${item.price}` : '—'}</div>
+              <div>使用天数：${item.useDays || '—'} 天</div>
+              <div>日均：${calculateDailyCost(item.price, item.useDays)}</div>
+            </div>
+            <div class="note">购买日期：${formatDate(item.purchaseDate)}</div>
+            ${item.reminderType === 'expiry' ? `<div class="note">到期日期：${formatDate(item.expiryDate)}</div>` : ''}
+            ${item.reminderType === 'warranty' ? `<div class="note">质保月数：${item.warrantyMonths || '—'} 个月</div><div class="note">质保截止：${formatDate(item.warrantyEndDate)}</div>` : ''}
+            ${status.level !== 'none' ? `<div class="status ${status.level === 'ok' ? 'status-ok' : 'status-alert'}">${status.text}</div>` : ''}
+            ${item.note ? `<div class="note">备注：${item.note}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      els.products.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => editItem(Number(btn.dataset.edit)));
+      });
+      els.products.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', () => deleteItem(Number(btn.dataset.delete)));
+      });
+    }
+
+    function render() {
+      renderFilters();
+      renderAlerts();
+      renderSummary();
+      renderProducts();
+    }
+
+    function initSelects() {
+      els.category.innerHTML = CATEGORY_OPTIONS.map(item => `<option value="${item}">${item}</option>`).join('');
+      els.platform.innerHTML = PLATFORM_OPTIONS.map(item => `<option value="${item}">${item}</option>`).join('');
+    }
+
+    els.purchaseDate.addEventListener('input', syncDerivedFields);
+    els.price.addEventListener('input', syncDerivedFields);
+    els.warrantyMonths.addEventListener('input', syncDerivedFields);
+    els.reminderType.addEventListener('change', () => {
+      updateReminderUI();
+      syncDerivedFields();
+    });
+    els.imageFile.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.image = typeof reader.result === 'string' ? reader.result : '';
+        els.imagePreview.src = state.image;
+        els.imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+    els.submitBtn.addEventListener('click', submitItem);
+    els.resetBtn.addEventListener('click', resetForm);
+
+    initSelects();
+    loadItems();
+    resetForm();
+    render();
+  </script>
+</body>
+</html>
